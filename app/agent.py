@@ -194,15 +194,15 @@ def ask_agent(
 
     user_text = (text or "").strip()
 
-    if image_path and not user_text:
-        user_text = "Пользователь отправил фотографию."
-
     if not user_text:
         return "Напиши сообщение или отправь фотографию."
 
     chat_key = _history_key(user_id, chat_id)
 
-    memories = memory.search(
+    memories = []
+
+    if user_text:
+        memories = memory.search(
         user_text,
         user_id=user_id,
         top_k=5,
@@ -226,7 +226,8 @@ def ask_agent(
     history = _history_text(chat_key)
 
     # В Pinecone сохраняем только текст сообщения пользователя.
-    memory.save_message(
+    if user_text:
+        memory.save_message(
         user_text,
         user_id=user_id,
         role="user_message",
